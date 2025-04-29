@@ -1,0 +1,7 @@
+import "./stdlib/hashes/sha256/256bitPadded" as sha256;
+import "./stdlib/hashes/keccak/256bit" as keccak;
+
+def main(private u32[8] input) -> u32[8] {
+    u32[8] sha = sha256(input);
+    return sha;
+}
