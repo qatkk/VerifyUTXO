@@ -12,11 +12,20 @@ import (
 )
 
 func main() {
-	// Initialize the accumulator (prover) and verifier (stump)
 	prover := utreexo.NewAccumulator()
 
+	// Verifer does not support proving elements.
+	verifier := utreexo.Stump{}
+
+	// A verifier may keep the below to cache the leaves and the merkle branches
+	// for some of the elements.
+	cachedHashes := []utreexo.Hash{}
+	cachedProof := utreexo.Proof{}
 	// Data elements (UTXOs in this case)
-	data := []string{"utxo1", "7e195aa3de827814f172c362fcf838d92ba10e3f9fdd9c3ecaf79522b311b22d", "utxo3", "utxo4"}
+	data := []string{"0000000000000000000000000000000000000000000000000000000000000001", 
+		"0000000000000000000000000000000000000000000000000000000000000002", 
+        "0000000000000000000000000000000000000000000000000000000000000003", 
+        "0000000000000000000000000000000000000000000000000000000000000004"}
 
 	// Hash the data to create commitments for the elements
 	hashes := make([]utreexo.Hash, len(data))
@@ -28,13 +37,15 @@ func main() {
 		hashes[i] = hash
 		leaves[i] = utreexo.Leaf{Hash: hash}
 	}
+	fmt.Println(leaves)
 	// Add elements to the accumulator and the verifier
 	prover.Modify(leaves, nil, utreexo.Proof{})
-	rememberIndexes := []uint32{1}
-	proof, _ := prover.Prove([]utreexo.Hash{leaves[rememberIndexes[0]].Hash})
-	fmt.Println(proof.Proof)
-	// fmt.Println([]byte(hex.DecodeString(data[rememberIndexes[0]])))
-	// Write proof, hash, and roots to file
+	updateData, _ := verifier.Update(nil, hashes, utreexo.Proof{})
+
+	rememberIndexes := []uint32{3}
+	cachedHashes, _ = cachedProof.Update(cachedHashes, hashes, nil, rememberIndexes, updateData)
+	fmt.Println(cachedProof.Proof)
+
 	f, err := os.Create("proof.gob")
 	if err != nil {
 		panic(err)
@@ -46,7 +57,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = enc.Encode(proof.Proof)
+	err = enc.Encode(cachedProof.Proof)
 	if err != nil {
 		panic(err)
 	}
