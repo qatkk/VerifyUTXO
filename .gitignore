@@ -1,0 +1,18 @@
+# Ignore node modules
+node_modules/
+
+# Ignore build artifacts
+dist/
+build/
+
+# Ignore environment variables
+.env
+
+# Ignore log files
+*.log
+
+# Ignore OS files
+.DS_Store
+
+# Ignore VSCode settings
+.vscode/
