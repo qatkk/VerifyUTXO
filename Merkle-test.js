@@ -38,7 +38,7 @@ describe("SHA256 test", function () {
         const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "sha256_hash_test.circom"));
 
         let b = new Buffer.alloc(32);
-        leaf_input = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
+        leaf_input = "0000000000000000000000000000000000000000000000000000000000000004";
         b = Buffer.from(leaf_input, 'hex'); 
         
         const hash = crypto.createHash("sha256")
@@ -50,7 +50,6 @@ describe("SHA256 test", function () {
 
         const arrOut = witness.slice(1, 257);
         const hash2 = bitArray2buffer(arrOut).toString("hex");
-
         assert.equal(hash, hash2);
 
     }).timeout(1000000);

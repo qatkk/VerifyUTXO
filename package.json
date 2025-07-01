@@ -1,5 +1,5 @@
 {
-  "name": "multiplier",
+  "name": "UTXOVerification",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -10,11 +10,22 @@
   "description": "",
   "devDependencies": {
     "@noble/secp256k1": "^2.3.0",
+    "@types/node": "^24.0.7",
+    "bitcoinjs-lib": "^6.1.7",
     "chai": "^5.2.0",
     "circom_tester": "^0.0.24",
     "circomlib": "^2.0.5",
     "ffjavascript": "^0.3.1",
     "mocha": "^11.6.0",
-    "secp256k1": "^5.0.1"
+    "secp256k1": "^5.0.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "bip32": "^5.0.0-rc.0",
+    "bip39": "^3.1.0",
+    "ecpair": "^3.0.0",
+    "tiny-secp256k1": "^2.2.4",
+    "ts-node": "^10.9.2",
+    "types": "^0.1.1"
   }
 }

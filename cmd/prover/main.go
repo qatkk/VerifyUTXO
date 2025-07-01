@@ -22,10 +22,10 @@ func main() {
 	cachedHashes := []utreexo.Hash{}
 	cachedProof := utreexo.Proof{}
 	// Data elements (UTXOs in this case)
-	data := []string{"0000000000000000000000000000000000000000000000000000000000000001", 
-		"0000000000000000000000000000000000000000000000000000000000000002", 
-        "0000000000000000000000000000000000000000000000000000000000000003", 
-        "0000000000000000000000000000000000000000000000000000000000000004"}
+	data := []string{"0000000000000000000000000000000000000000000000000000000000000001",
+		"0000000000000000000000000000000000000000000000000000000000000002",
+		"0000000000000000000000000000000000000000000000000000000000000003",
+		"0000000000000000000000000000000000000000000000000000000000000004"}
 
 	// Hash the data to create commitments for the elements
 	hashes := make([]utreexo.Hash, len(data))
@@ -37,14 +37,16 @@ func main() {
 		hashes[i] = hash
 		leaves[i] = utreexo.Leaf{Hash: hash}
 	}
-	fmt.Println(leaves)
+
 	// Add elements to the accumulator and the verifier
 	prover.Modify(leaves, nil, utreexo.Proof{})
+	fmt.Println(prover.GetRoots())
+	fmt.Println(leaves)
 	updateData, _ := verifier.Update(nil, hashes, utreexo.Proof{})
 
-	rememberIndexes := []uint32{3}
-	cachedHashes, _ = cachedProof.Update(cachedHashes, hashes, nil, rememberIndexes, updateData)
-	fmt.Println(cachedProof.Proof)
+	rememberIndexes := []uint32{1}
+	_, _ = cachedProof.Update(cachedHashes, hashes, nil, rememberIndexes, updateData)
+	fmt.Println("proof for the requested index is ", cachedProof.Proof)
 
 	f, err := os.Create("proof.gob")
 	if err != nil {
