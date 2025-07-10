@@ -93,7 +93,7 @@ template SchnorrCheck(n, k) {
     addPoints.b <== randomPoint;
     rhs <== addPoints.out;
     
-    component isEqual[2 * k +1];
+    component isEqual[2 * k + 1];
 
     for(var arr_index = 0; arr_index < k; arr_index++){
         isEqual[arr_index] = IsEqual();

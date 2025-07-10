@@ -35,10 +35,6 @@ async function createP2TR(){
     const mnemonic =
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const path = `m/86'/0'/0'/0/1`; // Path to first child of receiving wallet on first account
-    const internalPubkey = Buffer.from(
-      'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115',
-      'hex',
-    );
     // Verify the above (Below is no different than other HD wallets)
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const rootKey = bip32.fromSeed(seed);
@@ -69,6 +65,13 @@ async function createP2TR(){
     }else{
       assert.deepEqual(Buffer.from(tweakedPubkey).slice(1), output?.slice(2));
     }
+    const pubkeyPoint = ecc.pointCompress(Buffer.from(tweakedPubkey), false); 
+    let point = {
+      x: pubkeyPoint.slice(1, 33),
+      y: pubkeyPoint.slice(33, 65)
+    };
+    console.log("the tweaked public key point is", point.x);
+    console.log("the tweaked public key point is", tweakedPubkey);
   }
 
   createP2TR(); 
