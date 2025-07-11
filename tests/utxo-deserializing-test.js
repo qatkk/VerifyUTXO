@@ -9,7 +9,7 @@ const secp256k1 = require('secp256k1');
 const { Point, CURVE } = require('@noble/secp256k1');
 
 
-
+const circuitPath = '../circuits/Schnorr'; 
 const assert = chai.assert;
 
 const wasm_tester = require("circom_tester").wasm;
@@ -62,8 +62,12 @@ describe("Check utxo deserialization", function () {
     this.timeout(100000);
 
     it("Check public key deserialization", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Schnorr", "utxo_deserialize.circom"));
-
+        const originalLog = console.log;
+        // Override console.log to suppress output
+        console.log = function () {};
+          const cir = await wasm_tester(path.join(__dirname, circuitPath, "utxo_deserialize.circom"), 
+          { silent: true });
+        console.log = originalLog;
         const hexString = "51 20 a8 2f 29 94 4d 65 b8 6a e6 b5 e5 cc 75 e2 94 ea d6 c5 93 91 a1 ed c5 e0 16 e3 49 8c 67 fc 7b bb";
 
         // Step 1: Split hex string into bytes

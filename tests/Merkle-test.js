@@ -6,7 +6,7 @@ exports.p = Scalar.fromString("2188824287183927522224640574525727508854836440041
 
 const assert = chai.assert;
 const expect = chai.expect;
-
+const circuitPath = '../circuits/Merkle_tree'; // Path to the Merkle tree circuits
 const wasm_tester = require("circom_tester").wasm;
 
 function buffer2bitArray(b) {
@@ -35,7 +35,8 @@ describe("SHA256 test", function () {
     this.timeout(100000);
 
     it("Test if the circom hash matched the JS one", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "sha256_hash_test.circom"));
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_hash_test.circom"), 
+        {   silent: true });
 
         let b = new Buffer.alloc(32);
         leaf_input = "0000000000000000000000000000000000000000000000000000000000000004";
@@ -55,7 +56,7 @@ describe("SHA256 test", function () {
     }).timeout(1000000);
 
     it("Test if the concatination circtuit works", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "concat_test.circom"));
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "concat_test.circom"));
 
         let b = new Buffer.alloc(32);
         left_leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
@@ -76,7 +77,8 @@ describe("SHA256 test", function () {
     }).timeout(1000000);
 
     it("Test if the branch hashing works", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "sha256_branch_test.circom"));
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_branch_test.circom"),
+        {   silent: true });
 
         left_leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
         right_leaf = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
@@ -100,7 +102,8 @@ describe("SHA256 test", function () {
     }).timeout(1000000);
 
     it("Test if the branch hashing works with a route", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "sha256_branch_with_route.circom"));
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_branch_with_route.circom"), 
+        {   silent: true });
 
         leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
         branch = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
@@ -133,7 +136,9 @@ describe("SHA256 test", function () {
     }).timeout(1000000);
 
     it("Test the merkle tree of depth 2", async () => {
-        const cir = await wasm_tester(path.join(__dirname, "circuits/Merkle_tree", "merkle_tree_check.circom"));
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "merkle_tree_check.circom"), {
+            silent: true
+        });
 
         leaves = ["0000000000000000000000000000000000000000000000000000000000000001", "0000000000000000000000000000000000000000000000000000000000000002", 
         "0000000000000000000000000000000000000000000000000000000000000003", 
