@@ -16,3 +16,7 @@ build/
 
 # Ignore VSCode settings
 .vscode/
+
+
+# Ignore temporary files
+proof.gob
