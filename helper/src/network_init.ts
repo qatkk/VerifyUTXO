@@ -27,7 +27,7 @@ interface UTXO {
 }
 
 const client = new Client({
-    host: 'http://localhost:18445', 
+    host: 'http://localhost:18446', 
     username: 'foo', 
     password: 'bar', 
     wallet: 'initwallet'
