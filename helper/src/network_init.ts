@@ -1,4 +1,3 @@
-import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import * as bitcoin from 'bitcoinjs-lib';
 import Client from 'bitcoin-core';
@@ -7,24 +6,8 @@ import * as bip39 from 'bip39';
 import { sha256 } from '@noble/hashes/sha2';
 
 
-const ECPair = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
-
-interface UTXO {
-  txid: string;
-  vout: number;
-  address: string;
-  scriptPubKey: string;
-  amount: number;
-  confirmations: number;
-  spendable: boolean;
-  solvable: boolean;
-  safe: boolean;
-  desc: string;
-  parent_descs: string;
-  reused: boolean;
-}
 
 const client = new Client({
     host: 'http://localhost:18446', 

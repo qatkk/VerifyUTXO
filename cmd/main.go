@@ -31,22 +31,14 @@ func getUtreexoProof(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing txid in request", http.StatusBadRequest)
 		return
 	}
-	io.WriteString(w, "%s the request receieved for utxo with txid: "+txid+"and index "+fmt.Sprintf("%d", vout)+"\n")
 	result := DumpUTXOSet(false)
 	CreateDatabase(result["utxoFileName"].(string))
 	UTXOSet := Sqlite2UTXO(result["blockHeight"].(int64))
 	proof := GetProof(UTXOSet, txid, vout, false)
-	proofJSON, err := json.Marshal(proof["proof"])
-	if err != nil {
-		http.Error(w, "Error marshaling proof", http.StatusInternalServerError)
-		return
-	}
-	rootsJSON, err := json.Marshal(proof["roots"])
-	if err != nil {
-		http.Error(w, "Error marshaling roots", http.StatusInternalServerError)
-		return
-	}
-	io.WriteString(w, "The proof for the requested UTXO is: \n"+string(proofJSON)+"\n and the roots in the accumulator are"+string(rootsJSON)+"\n")
+	proofJson, _ := json.Marshal(proof)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(proofJson)
 }
 
 func main() {

@@ -42,9 +42,8 @@ bitcoin-cli -regtest -rpcuser=foo -rpcpassword=bar \
 sleep 2
 ts-node ./helper/src/network_init.ts 
 
-sleep 2 
-echo "List the utxos in the wallet" 
-bitcoin-cli -regtest -rpcuser=foo -rpcpassword=bar \
-  -rpcport=18446 \
-  -rpcwallet=initwallet listunspent
 
+echo "setting up the utreexo server" 
+
+cd ./cmd 
+go run . 

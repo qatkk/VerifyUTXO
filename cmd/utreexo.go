@@ -8,6 +8,14 @@ import (
 	"github.com/utreexo/utreexo"
 )
 
+func hashToHexArray(hashes []utreexo.Hash) []string {
+	hexes := make([]string, len(hashes))
+	for i, h := range hashes {
+		hexes[i] = hex.EncodeToString(h[:])
+	}
+	return hexes
+}
+
 func GetProof(UTXOSet [][]string, txid string, vout int, verbose bool) map[string]interface{} {
 	//  This code is from the test file in the Utreexo repo
 	verifier := utreexo.Stump{}
@@ -40,8 +48,8 @@ func GetProof(UTXOSet [][]string, txid string, vout int, verbose bool) map[strin
 		fmt.Println("proof for the requested index is ", cachedProof.Proof)
 	}
 	return map[string]interface{}{
-		"roots": verifier.Roots,
-		"proof": cachedProof.Proof,
+		"roots": hashToHexArray(verifier.Roots),
+		"proof": hashToHexArray(cachedProof.Proof),
 	}
 }
 
