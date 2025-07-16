@@ -1,6 +1,6 @@
 pragma circom 2.0.1;
 
-include "../sha512/sha512_hash_bits.circom";
+include "sha512/sha512_hash_bits.circom";
 
 template reverseBits(){
     signal input in[8][64]; 

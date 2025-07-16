@@ -22,7 +22,7 @@ template bits2scalar(n, k) {
     out <-- converted;
 }
 
-template deserializeUTXO(n, k){
+template deserializeScript(n, k){
     signal input in[n * k + 16 ]; 
     var opcode_push_version[8] = [0, 1, 0, 1, 0, 0, 0, 1]; 
     var opcode_push[8] = [0, 0, 1, 0, 0, 0, 0, 0]; 
@@ -48,13 +48,13 @@ template deserializeUTXO(n, k){
 
 
 template pubKeyCheck(n, k) {
-    signal input utxo[n * k + 16]; 
+    signal input script_pub_key[n * k + 16]; 
     signal input public_key [2][k]; 
     signal extracted_public_key[k]; 
     signal output out; 
     var equality_check = 1; 
-    component pubKeyExtract = deserializeUTXO(n, k); 
-    pubKeyExtract.in <== utxo; 
+    component pubKeyExtract = deserializeScript(n, k); 
+    pubKeyExtract.in <== script_pub_key; 
     extracted_public_key <== pubKeyExtract.out; 
     component checkOnCurve = Secp256k1PointOnCurve(); 
     checkOnCurve.x <== public_key[0]; 

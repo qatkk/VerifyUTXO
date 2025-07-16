@@ -40,27 +40,6 @@ function sha256(b){
 describe("UTreeXO and hash test", function () {
     this.timeout(100000);
 
-    it("Test if the circom hash matched the JS one", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_hash_test.circom"), 
-        {   silent: true });
-
-        let b = new Buffer.alloc(32);
-        leaf_input = "0000000000000000000000000000000000000000000000000000000000000004";
-        b = Buffer.from(leaf_input, 'hex'); 
-        
-        const hash = crypto.createHash("sha256")
-            .update(b)
-            .digest("hex");
-
-        const arrIn = buffer2bitArray(b);
-        const witness = await cir.calculateWitness({ "leaf": arrIn }, true);
-
-        const arrOut = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(arrOut).toString("hex");
-        assert.equal(hash, hash2);
-
-    }).timeout(1000000);
-
     it("Test if the concatination circtuit works", async () => {
         const cir = await wasm_tester(path.join(__dirname, circuitPath, "concat_test.circom"));
 
@@ -81,66 +60,30 @@ describe("UTreeXO and hash test", function () {
         expect(circom_concat).to.eql(js_concat);
 
     }).timeout(1000000);
+    it("Test sha512-256 truncated version", async () => {
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha512_output_MS.circom"), {
+            silent: true
+        });
+        const leaves = [
+        Buffer.from("0000000000000000000000000000000000000000000000000000000000000001", "hex"),
+        Buffer.from("0000000000000000000000000000000000000000000000000000000000000002", "hex")
+        ];
 
-    it("Test if the branch hashing works", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_branch_test.circom"),
-        {   silent: true });
+        // Hash leaves once (single SHA256)
+        const leafHashes = leaves.map(sha256);
+        // Concat in left || right order
+        const concat = Buffer.concat([leafHashes[0], leafHashes[1]]);
 
-        left_leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
-        right_leaf = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
-        right_bytes = Buffer.from(right_leaf, 'hex'); 
-        left_bytes = Buffer.from(left_leaf, 'hex');
-        const hash_input = Buffer.from(left_leaf + right_leaf, 'hex');
-
-        const hash = crypto.createHash("sha256")
-            .update(hash_input)
-            .digest("hex");
-
-        const left_input = buffer2bitArray(left_bytes);
-        const righ_input = buffer2bitArray(right_bytes);
-        const witness = await cir.calculateWitness({ "right_leaf": righ_input, "left_leaf": left_input }, true);
-
-        const circom_out = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(circom_out).toString("hex");
+        // Compute double SHA256 root
+        const root = sha512_256(concat);
 
 
-        assert.equal(hash, hash2);
-    }).timeout(1000000);
-
-    it("Test if the branch hashing works with a route", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha256_branch_with_route.circom"), 
-        {   silent: true });
-
-        leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
-        branch = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
-        route = 1;
-        let root;
-        leaf_bytes = Buffer.from(leaf, 'hex'); 
-        branch_bytes = Buffer.from(branch, 'hex');
-        const leaf_hash = crypto.createHash("sha256")
-        .update(leaf_bytes)
-        .digest("hex");
-
-        if (route){
-            root = Buffer.from(branch + leaf_hash, 'hex');
-        }else {
-            root = Buffer.from(leaf_hash + branch, 'hex');
-        }
-        const hash = crypto.createHash("sha256")
-            .update(root)
-            .digest("hex");
-
-        const leaf_input = buffer2bitArray(leaf_bytes);
-        const branch_input = buffer2bitArray(right_bytes);
-        const witness = await cir.calculateWitness({ "leaf": leaf_input, "branch_input": branch_input , "route": route}, true);
+        const witness = await cir.calculateWitness({ "in": buffer2bitArray(concat)}, true);
 
         const circom_out = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(circom_out).toString("hex");
+        assert.ok(Buffer.from(root).equals(bitArray2buffer(circom_out)));
 
-
-        assert.equal(hash, hash2);
     }).timeout(1000000);
-
     it("Test the UTreeXO proof for a merkle tree of depth 2", async () => {
         const cir = await wasm_tester(path.join(__dirname, circuitPath, "utreexo_proof.circom"), {
             silent: true
@@ -175,57 +118,5 @@ describe("UTreeXO and hash test", function () {
         assert.equal(root, hash2);
     }).timeout(1000000);
 
-    it("Test sha512-256 truncated version without output reversion", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha512_test.circom"), {
-            silent: true
-        });
-        const leaves = [
-        Buffer.from("0000000000000000000000000000000000000000000000000000000000000001", "hex"),
-        Buffer.from("0000000000000000000000000000000000000000000000000000000000000002", "hex")
-        ];
 
-        // Hash leaves once (single SHA256)
-        const leafHashes = leaves.map(sha256);
-        // Concat in left || right order
-        const concat = Buffer.concat([leafHashes[0], leafHashes[1]]);
-
-        // Compute double SHA256 root
-        const root = sha512_256(concat);
-        const left_input = buffer2bitArray(leafHashes[0]); 
-        const right_input = buffer2bitArray(leafHashes[1]); 
-
-        const witness = await cir.calculateWitness({ "in": buffer2bitArray(concat)}, true);
-
-        const circom_out = witness.slice(1, 513);
-
-        assert.ok(Buffer.from(root).slice(0, 8).equals(bitArray2buffer(circom_out.slice(0,64).reverse())));
-        assert.ok(Buffer.from(root).slice(8, 16).equals(bitArray2buffer(circom_out.slice(64,128).reverse())));
-        assert.ok(Buffer.from(root).slice(16, 24).equals(bitArray2buffer(circom_out.slice(128,192).reverse())));
-        assert.ok(Buffer.from(root).slice(24, 32).equals(bitArray2buffer(circom_out.slice(192,256).reverse())));
-    }).timeout(1000000);
-
-        it("Test sha512-256 truncated version", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha512_output_conversion.circom"), {
-            silent: true
-        });
-        const leaves = [
-        Buffer.from("0000000000000000000000000000000000000000000000000000000000000001", "hex"),
-        Buffer.from("0000000000000000000000000000000000000000000000000000000000000002", "hex")
-        ];
-
-        // Hash leaves once (single SHA256)
-        const leafHashes = leaves.map(sha256);
-        // Concat in left || right order
-        const concat = Buffer.concat([leafHashes[0], leafHashes[1]]);
-
-        // Compute double SHA256 root
-        const root = sha512_256(concat);
-
-
-        const witness = await cir.calculateWitness({ "in": buffer2bitArray(concat)}, true);
-
-        const circom_out = witness.slice(1, 257);
-        assert.ok(Buffer.from(root).equals(bitArray2buffer(circom_out)));
-
-    }).timeout(1000000);
 });

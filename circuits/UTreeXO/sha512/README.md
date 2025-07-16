@@ -9,6 +9,4 @@ This is the implementation done in https://github.com/bkomuves/hash-circuits.git
 - `sha512_initial_value.circom`: the hash initialization vector, the values are changed to the ones for a truncated version for the sake of the project
 - `sha512_rounds.circom`: the `n`-round compression function, where the hash state is 512 bits
 - `sha512_padding.circom`: the padding (it's the same for SHA384 too)
-- `sha512_hash_chunk.circom`: hash of a chunk (1024 bits), without applying any padding
 - `sha512_hash_bits.circom`: SHA512 hash of a sequence of bits
-- `sha512_hash_bytes.circom`: SHA512 hash of a sequence of bytes
