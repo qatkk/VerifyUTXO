@@ -4,7 +4,7 @@ include "../../node_modules/circomlib/circuits/sha256/sha256.circom";
 
 
 template Main() {
-    signal input right_leaf[256]; //private
+    signal input right_leaf[256]; 
     signal input left_leaf[256];
     signal concat[512];
     signal output root[256];

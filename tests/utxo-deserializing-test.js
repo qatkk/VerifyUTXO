@@ -14,16 +14,6 @@ const assert = chai.assert;
 
 const wasm_tester = require("circom_tester").wasm;
 
-function buffer2bitArray(b) {
-    const res = [];
-    for (let i=0; i<b.length; i++) {
-        for (let j=0; j<8; j++) {
-            res.push((b[i] >> (7-j) &1));
-        }
-    }
-    return res;
-}
-
 
 function bitArray2buffer(a) {
     const len = Math.floor((a.length -1 )/8)+1;
