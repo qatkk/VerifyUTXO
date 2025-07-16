@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 
 	"github.com/utreexo/utreexo"
 )
@@ -28,12 +30,20 @@ func GetProof(UTXOSet [][]string, txid string, vout int, verbose bool) map[strin
 	leaves := make([]utreexo.Leaf, len(UTXOSet))
 
 	for i, d := range UTXOSet {
-		input := d[0] + d[1] + d[2] // Assuming d[0] is txid and d[1] is the index and d[2] is scriptPubKey
+		txidBytes, _ := hex.DecodeString(d[0])
+
+		voutUint, _ := strconv.ParseUint(d[1], 10, 32)
+		voutBytes := make([]byte, 4)
+		binary.BigEndian.PutUint32(voutBytes, uint32(voutUint))
+
+		scriptBytes, _ := hex.DecodeString(d[2])
+		// Concatenate the byte slices
+		input := append(txidBytes, voutBytes...)
+		input = append(input, scriptBytes...)
 		if d[0] == txid && d[1] == fmt.Sprintf("%d", vout) {
 			rememberIndexes = append(rememberIndexes, uint32(i))
 		}
-		decoded, _ := hex.DecodeString(input)
-		hash := sha256.Sum256([]byte(decoded))
+		hash := sha256.Sum256([]byte(input))
 		hashes[i] = hash
 		leaves[i] = utreexo.Leaf{Hash: hash}
 	}
@@ -46,6 +56,7 @@ func GetProof(UTXOSet [][]string, txid string, vout int, verbose bool) map[strin
 	if verbose {
 		fmt.Println("verifier roots are ", verifier.Roots)
 		fmt.Println("proof for the requested index is ", cachedProof.Proof)
+		fmt.Printf("%d , %d", rememberIndexes, len(hashes))
 	}
 	return map[string]interface{}{
 		"roots": hashToHexArray(verifier.Roots),
@@ -62,9 +73,17 @@ func GetRoots(UTXOSet [][]string, verbose bool) []utreexo.Hash {
 	leaves := make([]utreexo.Leaf, len(UTXOSet))
 
 	for i, d := range UTXOSet {
-		input := d[0] + d[1] + d[2] // Assuming d[0] is txid and d[1] is the index and d[2] is scriptPubKey
-		decoded, _ := hex.DecodeString(input)
-		hash := sha256.Sum256([]byte(decoded))
+		txidBytes, _ := hex.DecodeString(d[0])
+
+		voutUint, _ := strconv.ParseUint(d[1], 10, 32)
+		voutBytes := make([]byte, 4)
+		binary.BigEndian.PutUint32(voutBytes, uint32(voutUint))
+
+		scriptBytes, _ := hex.DecodeString(d[2])
+		// Concatenate the byte slices
+		input := append(txidBytes, voutBytes...)
+		input = append(input, scriptBytes...)
+		hash := sha256.Sum256([]byte(input))
 		hashes[i] = hash
 		leaves[i] = utreexo.Leaf{Hash: hash}
 	}

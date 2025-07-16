@@ -14,7 +14,23 @@ template reverseBits(){
     }   
 }
 
-template utreexoProofCheck(N) {
+template serializeLeaf(){
+    signal input in_1[256]; 
+    signal input in_2[32]; 
+    signal input in_3[272]; 
+    signal output out[560];
+    for (var i = 0; i<272; i++){
+        if (i<256){
+            out[i] <== in_1[i];
+        }
+        if (i<32){
+            out[i+256] <== in_2[i];
+        }
+        out[i+288] <== in_3[i];
+    }
+}
+
+template utreexoRoot(N) {
     signal input leaf[256]; 
     signal input branch_input[N][256];
     signal input route[N]; 
@@ -24,9 +40,7 @@ template utreexoProofCheck(N) {
     component hash_root[N];
     component result_transform[N];
 
-    component sha256_leaf = Sha256(256);
-    sha256_leaf.in <== leaf;
-    leaf_branch[0] <== sha256_leaf.out;
+    leaf_branch[0] <== leaf;
     for (var level = 0; level < N; level++ ){
         for (var bit_index = 0; bit_index < 256; bit_index++) {
             if (route[level] == 1){
@@ -45,4 +59,25 @@ template utreexoProofCheck(N) {
     }
     root <== leaf_branch[N];
 }
-component main = utreexoProofCheck(2);
+
+template UTXO2UTreeXORoot(N){
+    signal input txid[256]; 
+    signal input vout[32]; 
+    signal input script_pub_key[272];
+    signal input proof[N][256]; 
+    signal input route[N]; 
+    signal output root[256];
+    component leafData = serializeLeaf();
+    leafData.in_1 <== txid; 
+    leafData.in_2 <== vout; 
+    leafData.in_3 <== script_pub_key;
+    component leafHash = Sha256(560); 
+    leafHash.in <== leafData.out;
+
+    component UTreeXORootComputation = utreexoRoot(N); 
+    UTreeXORootComputation.leaf <== leafHash.out; 
+    UTreeXORootComputation.branch_input <== proof; 
+    UTreeXORootComputation.route <== route; 
+    root <== UTreeXORootComputation.root; 
+}
+component main = UTXO2UTreeXORoot(2);

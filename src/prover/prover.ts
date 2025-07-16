@@ -104,8 +104,9 @@ async function main (){
     let UTXOset: UTXO[] = await getUTXOs(); 
     const spendingKey = await getKeysForUTXO(0, UTXOset);
     const tweakedPubkey = ecc.pointAddScalar(spendingKey.publickey, taggedHashing("TapTweak", toXOnly(Buffer.from((spendingKey.publickey)))), true); 
-
-    console.log(UTXOset[0].scriptPubKey, tweakedPubkey);
+    const proof = await getUTreeXOProof(UTXOset, 0);
+    console.log("UTXO leaf info \n", UTXOset[0].txid, UTXOset[0].vout, UTXOset[0].scriptPubKey, '\n');
+    console.log("proof", proof);
 }
 
 main(); 
