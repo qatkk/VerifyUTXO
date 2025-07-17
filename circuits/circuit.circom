@@ -22,6 +22,8 @@ template Main(tree_depth, number_of_trees, n, k){
     signal root[256];
     signal checks[3]; 
 
+    /////// Output signals /////////////////////
+    signal output out[2];
 
     //////// UTreeXO root computations
     component UTreeXOTest = UTXO2UTreeXORoot(tree_depth);
@@ -68,7 +70,7 @@ template Main(tree_depth, number_of_trees, n, k){
     pubKeyCheckInst.public_key <== public_key; 
     checks[1] <== pubKeyCheckInst.out;
 
-    
+
     ////// Signature check /////////////////////////////
     component schnorrCheckInst = SchnorrCheck(n, k);
     schnorrCheckInst.signature <== signature; 
@@ -77,7 +79,11 @@ template Main(tree_depth, number_of_trees, n, k){
     schnorrCheckInst.random_point <== random_point; 
     schnorrCheckInst.pub_key_point <== public_key; 
     checks[2] <== schnorrCheckInst.out;
-    assert(checks[0] * checks[1] * checks[2]);
+    assert(checks[0]);
+    assert(checks[1]); 
+    assert(checks[2]);
+    out[0] <==  (checks[1] * checks[2]);
+    out[1] <==  (out[0] * checks[0]);
 }
 
 component main = Main(2, 2, 64, 4);

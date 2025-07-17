@@ -1,51 +1,15 @@
 const chai = require("chai");
 const path = require("path");
-const crypto = require("crypto");
 const F1Field = require("ffjavascript").F1Field;
 const Scalar = require("ffjavascript").Scalar;
 exports.p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617");
 const Fr = new F1Field(exports.p);
 const secp256k1 = require('secp256k1');
-const { Point, CURVE } = require('@noble/secp256k1');
-
+const {bitArray2buffer, bufferToBigInt, bigintToTuple} = require("../src/utils");
 
 const circuitPath = 'circuits/Schnorr'; 
 const assert = chai.assert;
-
 const wasm_tester = require("circom_tester").wasm;
-
-
-function bitArray2buffer(a) {
-    const len = Math.floor((a.length -1 )/8)+1;
-    const b = new Buffer.alloc(len);
-
-    for (let i=0; i<a.length; i++) {
-        const p = Math.floor(i/8);
-        b[p] = b[p] | (Number(a[i]) << ( 7 - (i%8)  ));
-    }
-    return b;
-}
-
-function bufferToBigInt(buf) {
-  let result = 0n;
-  for (const byte of buf) {
-    result = (result << 8n) + BigInt(byte);
-  }
-  return result;
-}
-
-function bigintToTuple(x) {
-  const mod = 2n ** 64n;
-  const ret = [0n, 0n, 0n, 0n];
-
-  let xTemp = x;
-  for (let i = 0; i < ret.length; i++) {
-    ret[i] = xTemp % mod;
-    xTemp = xTemp / mod;
-  }
-
-  return ret;
-}
 
 
 describe("Check utxo deserialization", function () {

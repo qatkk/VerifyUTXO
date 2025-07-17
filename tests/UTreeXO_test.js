@@ -2,6 +2,7 @@ const chai = require("chai");
 const path = require("path");
 const crypto = require("crypto");
 const Scalar = require("ffjavascript").Scalar;
+const {bitArray2buffer, buffer2bitArray} = require("../src/utils");
 const {sha512_256} = require("@noble/hashes/sha2.js");
 exports.p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617");
 
@@ -9,26 +10,6 @@ const assert = chai.assert;
 const expect = chai.expect;
 const circuitPath = 'circuits/UTreeXO'; // Path to the Merkle tree circuits
 const wasm_tester = require("circom_tester").wasm;
-
-function buffer2bitArray(b) {
-    const res = [];
-    for (let i=0; i<b.length; i++) {
-        for (let j=0; j<8; j++) {
-            res.push((b[i] >> (7-j) &1));
-        }
-    }
-    return res;
-}
-function bitArray2buffer(a) {
-    const len = Math.floor((a.length -1 )/8)+1;
-    const b = new Buffer.alloc(len);
-
-    for (let i=0; i<a.length; i++) {
-        const p = Math.floor(i/8);
-        b[p] = b[p] | (Number(a[i]) << ( 7 - (i%8)  ));
-    }
-    return b;
-}
 
 function sha256(b){
     return crypto.createHash("sha256")
@@ -97,7 +78,7 @@ describe("UTreeXO and hash test", function () {
                     '584f327fdeba3242c22f3cd0e52ca6f2a473fd1cea7a38d9723f8d220e8080f2'];
         root = ['a988af8ad86ee2ceca10622f97f160d3588e361f5bea8cc9093892c5632b6d7f',
                 'f79bbdfafac756e6bf835c263b7d5ef7ed0b5524274ec07878e884476e1b4f1a'];
-        vout_bytes = (Buffer.alloc(4)).writeUint32BE(0);
+        let vout_bytes = Buffer.alloc(4).fill(UTXO.vout);
         route = [1, 0];
         branch_bytes = [
             Buffer.from(branches[0], 'hex'), 
@@ -107,9 +88,13 @@ describe("UTreeXO and hash test", function () {
             buffer2bitArray(branch_bytes[0]), 
             buffer2bitArray(branch_bytes[1])
         ];
-
-        const witness = await cir.calculateWitness({ "txid": buffer2bitArray(Buffer.from(UTXO.txid, 'hex')), "vout": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-             "route": route, "script_pub_key": buffer2bitArray(Buffer.from(UTXO.script_pub_key, 'hex')), "proof": branch_input}, true);
+        const circuit_inputs = { "txid": buffer2bitArray(Buffer.from(UTXO.txid, 'hex')),
+            "vout": buffer2bitArray(vout_bytes),
+            "route": route,
+            "script_pub_key": buffer2bitArray(Buffer.from(UTXO.script_pub_key, 'hex')), 
+            "proof": branch_input
+        };
+        const witness = await cir.calculateWitness(circuit_inputs, true);
 
         const circom_out = witness.slice(1, 257);
         const hash2 = bitArray2buffer(circom_out).toString("hex");

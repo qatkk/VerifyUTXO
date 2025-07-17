@@ -5,6 +5,7 @@ import BIP32Factory from 'bip32';
 import * as bip39 from 'bip39';
 import { sha256 } from '@noble/hashes/sha2';
 import { toXOnly } from 'bitcoinjs-lib/src/psbt/bip371';
+import { assert } from 'console';
 
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -135,10 +136,25 @@ function getRoute(index: number, set_size: number) {
 async function main (){
     let UTXOset: UTXO[] = await getUTXOs(); 
     const spendingKey = await getKeysForUTXO(0, UTXOset);
-    const tweakedPubkey = ecc.pointAddScalar(spendingKey.publickey, taggedHashing("TapTweak", toXOnly(Buffer.from((spendingKey.publickey)))), true); 
+    const tweak = taggedHashing("TapTweak", toXOnly(Buffer.from((spendingKey.publickey)))); 
+    const tweakedPubkey = ecc.pointAddScalar(spendingKey.publickey, tweak, true); 
     const proof = await getUTreeXOProof(UTXOset, 0);
+    if (!tweakedPubkey || !spendingKey.privKey) {
+        throw new Error("Tweaked public key is null.");
+    }
+    const tweaked_priv_key = ecc.privateAdd(spendingKey.privKey, tweak);
+    const tweaked_public_key_point = ecc.pointCompress(Buffer.from(tweakedPubkey), false); 
+    if (!tweaked_priv_key){
+        throw new Error("Tweaked priv key is null");
+    };
+    const pub_from_priv_tweaked = ecc.pointFromScalar(tweaked_priv_key);
+    if (!pub_from_priv_tweaked) {
+        throw new Error("Failed to derive public key from tweaked private key.");
+    }
+    assert(Buffer.from(pub_from_priv_tweaked).equals(tweakedPubkey));
     console.log("UTXO leaf info \n", UTXOset[0].txid, UTXOset[0].vout, UTXOset[0].scriptPubKey, '\n');
     console.log("proof", proof);
+    console.log("the tweaked private key is ", tweaked_priv_key, "the corresponding uncompressed pub key is", tweaked_public_key_point);
 }
 
 main(); 
