@@ -21,7 +21,7 @@ function taggedHashing(tag: String, data: Uint8Array): Uint8Array{
   return sha256(Uint8Array.from(Buffer.concat([tagHash,tagHash,data])));
 }
 
-async function initializeWallet() {
+async function initializeWallet(verbose: boolean) {
     const mnemonic =
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const seed = await bip39.mnemonicToSeed(mnemonic);
@@ -38,18 +38,14 @@ async function initializeWallet() {
         range: [0, 99],
         active: true
         }]).then(info => {
-        console.log("Descriptor imported successfully:", info);
+            if(verbose)
+                console.log("Descriptor imported successfully:", info);
     }).catch(err => {
-        console.error("Error importing descriptor:", err);
+            console.error("Error importing descriptor:", err);
     }); 
-    await client.command('listdescriptors').then(info => {
-        console.log("Wallet Information:", info);
-    }).catch(err => {
-        console.error("Error fetching wallet information:", err);
-    });
 }
 
-async function createAddress(ifExternal: boolean, index: number) {
+async function createAddress(ifExternal: boolean, index: number, verbose: boolean) {
     const mnemonic =
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const seed = await bip39.mnemonicToSeed(mnemonic);
@@ -62,7 +58,9 @@ async function createAddress(ifExternal: boolean, index: number) {
     network: bitcoin.networks.regtest,
     });
     client.command('getaddressinfo', address).then(info => {
-        console.log("Address Information:", info);
+        if(verbose){
+            console.log("Address Information:", info);
+        }
     }).catch(err => {
         console.error("Error fetching address information:", err);
     });
@@ -75,10 +73,10 @@ async function createAddress(ifExternal: boolean, index: number) {
     }; 
 }
 
-async function createUTXOSet(size: number, verbose: boolean = false) {
+async function createUTXOSet(size: number, verbose: boolean) {
     let address = []; 
     for (let index = 0; index < size; index++) {
-        const addr = await createAddress(true, index);
+        const addr = await createAddress(true, index, verbose);
         address.push(addr);
         await client.command('generatetoaddress', 1, address[index].address).then(info => {
             if (verbose) console.log("Blocks generated:", info);
@@ -98,12 +96,13 @@ async function createUTXOSet(size: number, verbose: boolean = false) {
 }
 
 async function main(){
-    await initializeWallet().then(() => {
+    const verbose = false;
+    await initializeWallet(verbose).then(() => {
         console.log("Wallet initialized successfully.");
     }).catch(err => {
         console.error("Error initializing wallet:", err);
     }); 
-    await createUTXOSet(5, false);
+    await createUTXOSet(5, verbose);
     return 0; 
 }
 

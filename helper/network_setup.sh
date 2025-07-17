@@ -1,9 +1,10 @@
 
 #!/bin/bash
-docker ps -q --filter ancestor=bitcoin/bitcoin:28.1 | xargs -r docker kill
+docker ps -q --filter ancestor=bitcoin/bitcoin:28.1 | xargs -r docker kill > /dev/null 2>&1;
 
 # Remove all stopped containers based on the image 'bitcoin/bitcoin:28.1'
-docker ps -a -q --filter ancestor=bitcoin/bitcoin:28.1 | xargs -r docker rm
+docker ps -a -q --filter ancestor=bitcoin/bitcoin:28.1 | xargs -r docker rm > /dev/null 2>&1;
+
 
 sleep 5
 
@@ -34,14 +35,14 @@ until bitcoin-cli -regtest -rpcuser=foo -rpcpassword=bar -rpcport=18446 getblock
   sleep 3
 done
 
-echo "Bitcoin Core RPC is up!"#  Create the wallet 
+echo "Bitcoin Core RPC is up!"
 
 bitcoin-cli -regtest -rpcuser=foo -rpcpassword=bar \
   -rpcport=18446 \
   createwallet "initwallet" true true "" true
 sleep 2
-ts-node ./helper/src/network_init.ts 
 
+ts-node ./helper/src/network_init.ts 
 
 echo "setting up the utreexo server" 
 
