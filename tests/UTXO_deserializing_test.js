@@ -9,7 +9,7 @@ const secp256k1 = require('secp256k1');
 const { Point, CURVE } = require('@noble/secp256k1');
 
 
-const circuitPath = '../circuits/Schnorr'; 
+const circuitPath = 'circuits/Schnorr'; 
 const assert = chai.assert;
 
 const wasm_tester = require("circom_tester").wasm;
@@ -55,7 +55,7 @@ describe("Check utxo deserialization", function () {
         const originalLog = console.log;
         // Override console.log to suppress output
         console.log = function () {};
-          const cir = await wasm_tester(path.join(__dirname, circuitPath, "utxo_deserialize.circom"), 
+          const cir = await wasm_tester(path.join(__dirname, circuitPath, "utxo_deserialize_test.circom"), 
           { silent: true });
         console.log = originalLog;
         const hexString = "51 20 a8 2f 29 94 4d 65 b8 6a e6 b5 e5 cc 75 e2 94 ea d6 c5 93 91 a1 ed c5 e0 16 e3 49 8c 67 fc 7b bb";
@@ -71,8 +71,8 @@ describe("Check utxo deserialization", function () {
         const pubkeyXInput = bigintToTuple(bufferToBigInt(uncompressedPubKey.slice(1, 33)));
         const pubkeyYInput = bigintToTuple(bufferToBigInt(uncompressedPubKey.slice(33, 65)) );
 
-        const witness = await cir.calculateWitness({ "utxo": bitArray, "public_key": [pubkeyXInput, pubkeyYInput]}, true);
-        assert.equal(witness[0], 1); 
+        const witness = await cir.calculateWitness({ "script_pub_key": bitArray, "public_key": [pubkeyXInput, pubkeyYInput]}, true);
+        assert.equal(witness[1], 1); 
     }).timeout(1000000);
 
 });

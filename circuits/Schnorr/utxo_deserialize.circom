@@ -2,25 +2,9 @@ pragma circom 2.0.2;
 
 include "../../node_modules/circomlib/circuits/bitify.circom";
 include "../../node_modules/circomlib/circuits/comparators.circom";
-
+include "utils.circom";
 include "secp256k1.circom"; 
 
-template bits2scalar(n, k) { 
-    signal input in[k*n]; 
-    var reversedValue [k][n];
-    var converted[k]; 
-    signal output out [k];
-    component bit2numConversion[k];
-    for (var arr_index = 0; arr_index< k; arr_index++){
-        for (var bit_index = 0; bit_index< n; bit_index++) {
-            reversedValue[arr_index][n - 1 - bit_index] = in[bit_index + arr_index * n] ;
-        }
-        bit2numConversion[arr_index] = Bits2Num(n);
-        bit2numConversion[arr_index].in <-- reversedValue[arr_index];
-        converted[k - 1 - arr_index] = bit2numConversion[arr_index].out;
-    }
-    out <-- converted;
-}
 
 template deserializeScript(n, k){
     signal input in[n * k + 16 ]; 
@@ -62,10 +46,8 @@ template pubKeyCheck(n, k) {
     component equalityCheck[k];
     for (var i = 0; i<k; i ++) { 
         equalityCheck[i] =  IsZero(); 
-        public_key[0][i] - extracted_public_key[i] ==> equalityCheck[i].in; 
-        equality_check = equality_check && equalityCheck[i].out; 
+        equalityCheck[i].in <== public_key[0][i] - extracted_public_key[i]; 
+        equality_check = equality_check * equalityCheck[i].out; 
     }
     out <-- equality_check;
 }
-
-component main = pubKeyCheck(64, 4);

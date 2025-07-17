@@ -80,4 +80,3 @@ template UTXO2UTreeXORoot(N){
     UTreeXORootComputation.route <== route; 
     root <== UTreeXORootComputation.root; 
 }
-component main = UTXO2UTreeXORoot(2);

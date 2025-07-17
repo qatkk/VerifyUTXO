@@ -1,7 +1,7 @@
 pragma circom 2.0.2;
 
 
-include "secp256k1.circom"; 
+include "../../../circuits/Schnorr/secp256k1.circom"; 
 
 template mulScalarAndPoint(n, k) {
     signal input scalar[k]; 

@@ -7,7 +7,7 @@ exports.p = Scalar.fromString("2188824287183927522224640574525727508854836440041
 
 const assert = chai.assert;
 const expect = chai.expect;
-const circuitPath = '../circuits/UTreeXO'; // Path to the Merkle tree circuits
+const circuitPath = 'circuits/UTreeXO'; // Path to the Merkle tree circuits
 const wasm_tester = require("circom_tester").wasm;
 
 function buffer2bitArray(b) {
@@ -84,7 +84,7 @@ describe("UTreeXO and hash test", function () {
 
     }).timeout(1000000);
     it("Test the UTreeXO proof for a merkle tree of depth 2", async () => {
-        const cir = await wasm_tester(path.join(__dirname, circuitPath, "utreexo_proof.circom"), {
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "utreexo_proof_test.circom"), {
             silent: true
         });
 
@@ -115,6 +115,18 @@ describe("UTreeXO and hash test", function () {
         const hash2 = bitArray2buffer(circom_out).toString("hex");
         assert.ok((root[0] == hash2) || (root[1] == hash2));
     }).timeout(1000000);
+
+    it("Test root inclusion", async () => {
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "root_inclusion_test.circom"), {
+            silent: true
+        });
+        root = ['a988af8ad86ee2ceca10622f97f160d3588e361f5bea8cc9093892c5632b6d7f',
+                'f79bbdfafac756e6bf835c263b7d5ef7ed0b5524274ec07878e884476e1b4f1a'];
+
+        const witness = await cir.calculateWitness({ "roots": [buffer2bitArray(Buffer.from(root[0], 'hex')), buffer2bitArray(Buffer.from(root[1], 'hex'))], 
+            "root": buffer2bitArray(Buffer.from(root[0], 'hex'))}, true);
+        assert.equal(witness[1], 1);
+        }).timeout(1000000);
 
 
 });
