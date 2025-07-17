@@ -59,8 +59,10 @@ func GetProof(UTXOSet [][]string, txid string, vout int, verbose bool) map[strin
 		fmt.Printf("%d , %d", rememberIndexes, len(hashes))
 	}
 	return map[string]interface{}{
-		"roots": hashToHexArray(verifier.Roots),
-		"proof": hashToHexArray(cachedProof.Proof),
+		"roots":   hashToHexArray(verifier.Roots),
+		"proof":   hashToHexArray(cachedProof.Proof),
+		"index":   rememberIndexes[0],
+		"setSize": len(hashes),
 	}
 }
 

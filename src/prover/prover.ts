@@ -99,6 +99,38 @@ async function getKeysForUTXO(index: number, UTXOset: UTXO[]) {
     }
 }
 
+function isInThisTree(left_members: string[], index: number) {
+    const tree_size = left_members.length;
+    if (index < Math.pow(2, tree_size - 1)) {
+        return 1; 
+    }else {
+        return 0;
+    }
+}
+
+function toFixedBinaryArray(n: number, size: number): number[] {
+  const binaryStr = n.toString(2).padStart(size, '0'); 
+  return binaryStr.split('').map(Number);       
+}
+
+
+function getRoute(index: number, set_size: number) {
+    if(index >= set_size){
+        return -1; 
+    }
+    let bin_set_size = set_size.toString(2).split('');
+    let is_tree_found = isInThisTree(bin_set_size, index); 
+    while(!is_tree_found){
+        index = index - Math.pow(2, bin_set_size.length -1); 
+        bin_set_size = bin_set_size.slice(1, ); 
+        let size = parseInt(bin_set_size.join(''),2);
+        console.log(size);
+        bin_set_size = size.toString(2).split('');  
+        is_tree_found = isInThisTree(bin_set_size, index); 
+    }
+    return toFixedBinaryArray(index, bin_set_size.length - 1).reverse();
+}
+
 
 async function main (){
     let UTXOset: UTXO[] = await getUTXOs(); 

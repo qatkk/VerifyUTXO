@@ -39,51 +39,50 @@ function sha256(b){
 
 describe("UTreeXO and hash test", function () {
     this.timeout(100000);
+    it("Test if the concatination circtuit works", async () => {
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "concat_test.circom"));
 
-    // it("Test if the concatination circtuit works", async () => {
-    //     const cir = await wasm_tester(path.join(__dirname, circuitPath, "concat_test.circom"));
-
-    //     let b = new Buffer.alloc(32);
-    //     left_leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
-    //     right_leaf = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
-    //     right_bytes = Buffer.from(right_leaf, 'hex'); 
-    //     left_bytes = Buffer.from(left_leaf, 'hex');
+        let b = new Buffer.alloc(32);
+        left_leaf = "b94d27b9934d3e08a52e52d7da7dabfadeb8a4fa7e6d16c8f2f4e8ee7f6c9fbe";
+        right_leaf = "cc4927aaf29ad7fadcdd79949a6f8c9a5bb2e9640443978c762a0385bc128671";
+        right_bytes = Buffer.from(right_leaf, 'hex'); 
+        left_bytes = Buffer.from(left_leaf, 'hex');
 
 
-    //     const left_input = buffer2bitArray(left_bytes);
-    //     const righ_input = buffer2bitArray(right_bytes);
-    //     const witness = await cir.calculateWitness({ "right_leaf": righ_input, "left_leaf": left_input }, true);
+        const left_input = buffer2bitArray(left_bytes);
+        const righ_input = buffer2bitArray(right_bytes);
+        const witness = await cir.calculateWitness({ "right_leaf": righ_input, "left_leaf": left_input }, true);
 
-    //     const circom_concat = witness.slice(1, 513).map(Number);
-    //     const js_concat = buffer2bitArray(Buffer.from(left_leaf + right_leaf, 'hex'));
+        const circom_concat = witness.slice(1, 513).map(Number);
+        const js_concat = buffer2bitArray(Buffer.from(left_leaf + right_leaf, 'hex'));
         
-    //     expect(circom_concat).to.eql(js_concat);
+        expect(circom_concat).to.eql(js_concat);
 
-    // }).timeout(1000000);
-    // it("Test sha512-256 truncated version", async () => {
-    //     const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha512_output_MS.circom"), {
-    //         silent: true
-    //     });
-    //     const leaves = [
-    //     Buffer.from("0000000000000000000000000000000000000000000000000000000000000001", "hex"),
-    //     Buffer.from("0000000000000000000000000000000000000000000000000000000000000002", "hex")
-    //     ];
+    }).timeout(1000000);
+    it("Test sha512-256 truncated version", async () => {
+        const cir = await wasm_tester(path.join(__dirname, circuitPath, "sha512_output_MS.circom"), {
+            silent: true
+        });
+        const leaves = [
+        Buffer.from("0000000000000000000000000000000000000000000000000000000000000001", "hex"),
+        Buffer.from("0000000000000000000000000000000000000000000000000000000000000002", "hex")
+        ];
 
-    //     // Hash leaves once (single SHA256)
-    //     const leafHashes = leaves.map(sha256);
-    //     // Concat in left || right order
-    //     const concat = Buffer.concat([leafHashes[0], leafHashes[1]]);
+        // Hash leaves once (single SHA256)
+        const leafHashes = leaves.map(sha256);
+        // Concat in left || right order
+        const concat = Buffer.concat([leafHashes[0], leafHashes[1]]);
 
-    //     // Compute double SHA256 root
-    //     const root = sha512_256(concat);
+        // Compute double SHA256 root
+        const root = sha512_256(concat);
 
 
-    //     const witness = await cir.calculateWitness({ "in": buffer2bitArray(concat)}, true);
+        const witness = await cir.calculateWitness({ "in": buffer2bitArray(concat)}, true);
 
-    //     const circom_out = witness.slice(1, 257);
-    //     assert.ok(Buffer.from(root).equals(bitArray2buffer(circom_out)));
+        const circom_out = witness.slice(1, 257);
+        assert.ok(Buffer.from(root).equals(bitArray2buffer(circom_out)));
 
-    // }).timeout(1000000);
+    }).timeout(1000000);
     it("Test the UTreeXO proof for a merkle tree of depth 2", async () => {
         const cir = await wasm_tester(path.join(__dirname, circuitPath, "utreexo_proof.circom"), {
             silent: true
@@ -114,8 +113,7 @@ describe("UTreeXO and hash test", function () {
 
         const circom_out = witness.slice(1, 257);
         const hash2 = bitArray2buffer(circom_out).toString("hex");
-        console.log(root, hash2);
-        // assert.equal(root, hash2);
+        assert.ok((root[0] == hash2) || (root[1] == hash2));
     }).timeout(1000000);
 
 
