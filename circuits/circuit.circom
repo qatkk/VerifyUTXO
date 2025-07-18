@@ -22,9 +22,6 @@ template Main(tree_depth, number_of_trees, n, k){
     signal root[256];
     signal checks[3]; 
 
-    /////// Output signals /////////////////////
-    signal output out[2];
-
     //////// UTreeXO root computations
     component UTreeXOTest = UTXO2UTreeXORoot(tree_depth);
     UTreeXOTest.txid <== txid; 
@@ -82,8 +79,6 @@ template Main(tree_depth, number_of_trees, n, k){
     assert(checks[0]);
     assert(checks[1]); 
     assert(checks[2]);
-    out[0] <==  (checks[1] * checks[2]);
-    out[1] <==  (out[0] * checks[0]);
 }
 
 component main = Main(2, 2, 64, 4);

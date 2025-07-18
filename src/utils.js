@@ -2,9 +2,7 @@ const crypto = require("crypto");
 const F1Field = require("ffjavascript").F1Field;
 const Scalar = require("ffjavascript").Scalar;
 exports.p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617");
-const Fr = new F1Field(exports.p);
-const secp256k1 = require('secp256k1');
-const { Point, CURVE } = require('@noble/secp256k1');
+
 
 
 
@@ -51,33 +49,5 @@ function bitArray2buffer(a) {
 }
 
 
-function schnorr(){
-    let privKey;
-    do {
-        privKey = crypto.randomBytes(32);
-    } while (!secp256k1.privateKeyVerify(privKey));
-    let public_key_point = Point.BASE.multiply(bufferToBigInt(privKey));
-    //////////// random point 
-    let random;
-    do {
-        random = crypto.randomBytes(32);
-    } while (!secp256k1.privateKeyVerify(random));        
-    let random_point = Point.BASE.multiply(bufferToBigInt(random));
-    ///////////////// message 
-    let message = crypto.randomBytes(32);
-    //////////////// e for the signature
-    let input = Buffer.concat([random_point.toRawBytes().slice(1,33),
-    public_key_point.toRawBytes().slice(1, 33),
-    message]);
 
-    let hash = crypto.createHash("sha256")
-        .update(input)
-        .digest("hex");
-    hash = bufferToBigInt(Buffer.from(hash, 'hex')) % CURVE.n;
-
-    const signature = (bufferToBigInt(random) + hash * bufferToBigInt(privKey)) % CURVE.n;
-}
-
-
-
-module.exports = {bigintToTuple, bitArray2buffer, buffer2bitArray, bufferToBigInt, schnorr}
+module.exports = {bigintToTuple, bitArray2buffer, buffer2bitArray, bufferToBigInt}

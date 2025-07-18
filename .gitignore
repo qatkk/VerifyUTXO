@@ -21,3 +21,4 @@ build/
 # Ignore temporary files
 proof.gob
 data/
+src/prover/inputs.json

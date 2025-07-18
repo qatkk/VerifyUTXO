@@ -98,8 +98,7 @@ describe("Test", function () {
             "random_point": [random_x, random_y], 
             "public_key": [pk_x, pk_y]
         }
-        const witness = await cir.calculateWitness(circuit_inputs, true); 
-        console.log(witness.slice(1,3));
 
+        const witness = await cir.calculateWitness(circuit_inputs, true); 
     }).timeout(1000000);
 });
