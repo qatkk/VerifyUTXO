@@ -22,3 +22,12 @@ build/
 proof.gob
 data/
 src/prover/inputs.json
+circuit_js
+circuit.r1cs
+powersOfTau28_hez_final_22.ptau
+circuit.zkey
+circuit_final.zkey
+verification_key.json
+proof.json 
+public.json
+witness.wtns

@@ -234,7 +234,6 @@ function getZKInputs(UTXOset: UTXO[], UTXO_index: number, UTreeXO_proof: Proof, 
     const pk_y =  bigintToTuple(bufferToBigInt(public_key_point.slice(33,65)));
     const message_input = bigintToTuple(bufferToBigInt(signature.message));
     const proof_inputs =  UTreeXO_proof.proof.map(hash => buffer2bitArray(Buffer.from(hash, 'hex')));
-    console.log(UTreeXO_proof.index, UTreeXO_proof.setSize);
     let route: number[] | -1 = -1;
     if (
         typeof UTreeXO_proof?.index === 'number' &&
@@ -269,7 +268,7 @@ function getZKInputs(UTXOset: UTXO[], UTXO_index: number, UTreeXO_proof: Proof, 
 
 async function main (){
     let UTXOset: UTXO[] = await getUTXOs(); 
-    let UTXO_index = 3; 
+    let UTXO_index = 2; 
     const wallet_keys = await getKeysForUTXO(UTXO_index, UTXOset);
     if (!wallet_keys.privKey){
         throw Error("Private keys not accesible!");
