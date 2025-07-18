@@ -81,4 +81,4 @@ template Main(tree_depth, number_of_trees, n, k){
     assert(checks[2]);
 }
 
-component main = Main(2, 2, 64, 4);
+component main {public [roots]} = Main(2, 2, 64, 4);
