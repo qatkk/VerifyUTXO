@@ -20,7 +20,7 @@ sudo chmod +x ./helper/network_setup.sh
 ``` 
 
 ## Proof Generation 
-Download the powers of tau file necessary for the proof generation as below(for the test case where UTXO set size is 5 we need powers of tau >= 22):
+Download the powers of tau file necessary for the proof generation as below(for the test case where there are 5 UTXOs we need powers of tau >= 22):
 ```bash 
 wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
 ```
