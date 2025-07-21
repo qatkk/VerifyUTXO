@@ -2,7 +2,7 @@
 
 This repo implements a proof of concept implementation to prove to a verifier the ownership of a UTXO still existing in the UTXO set. 
 
-UTXO set membersip is proved using UTreeXO. A backend server acts as the bride node of UTreeXO providing proof for a queried UTXO in the set. 
+UTXO set membersip is proved using UTreeXO. A backend server acts as the bridge node of UTreeXO providing proof for a queried UTXO in the set. 
 
 The UTXO ownership is proved by providing a Schnorr signature verified by the tweaked public key included in the output of a P2TR UTXO (for now this is the only type of UTXO supported in the repo). 
 
@@ -12,7 +12,7 @@ Install the dependencied by running the following command in the root directory 
 npm install 
 ```
 
-To setup the regtes and run the UTreeXO server, run the network setup script. 
+To setup the regtest and run the UTreeXO server, run the network setup script. 
 
 ```bash 
 sudo chmod +x ./helper/network_setup.sh
@@ -20,7 +20,7 @@ sudo chmod +x ./helper/network_setup.sh
 ``` 
 
 ## Proof Generation 
-Download the powers of tau file necessary for the proof generation as below(for the test case where UTXO set is 5 we need powers of tau >= 22):
+Download the powers of tau file necessary for the proof generation as below(for the test case where UTXO set size is 5 we need powers of tau >= 22):
 ```bash 
 wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
 ```
@@ -40,7 +40,7 @@ npx mocha tests/cicruit_test.js
 
 ## Temporary Files
 
-The code will mount the current directory to include the files created and changed by the regtest in the ./data folder. The dumped UTXO set can also be found in this folder under the format "./data/regtest/utxo-set-{block height}.dat" signifying which block height the UTXO set belongs to. 
+The code will mount the current directory to include the files created and changed by the regtest in the ./data folder. The dumped UTXO set can also be found in this folder under the format "./data/regtest/utxo-set-{block height}.dat" indicating which block height the UTXO set belongs to. 
 
 Upon running the prover, an inputs.json file will be created containing the public and private inputs neccassary to create the witness and proof for the general circuit "./circuits/circuit.circom". 
 
